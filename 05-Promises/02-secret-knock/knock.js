@@ -22,10 +22,10 @@ function secretKnock() {
         }
     };
     $.ajax(loginRequest)
-        .then(showAuthToken)
+        .then(storeAuthToken)
         .catch(displayError);
 
-    function showAuthToken(data) {
+    function storeAuthToken(data) {
         authtoken = data._kmd.authtoken;
         processQueries();
     }
