@@ -1,0 +1,7 @@
+fieldset {
+    display: inline-table;
+    vertical-align: top;
+    margin: 15px;
+    padding: 15px;
+    border-radius: 10px;
+}
