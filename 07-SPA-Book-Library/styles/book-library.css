@@ -43,7 +43,7 @@ table td {
 }
 
 #infoBox, #errorBox, #loadingBox {
-    display: none; //
+    display: none;
     width: 80%;
     margin: 10px auto;
     color: white;

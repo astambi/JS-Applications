@@ -2,23 +2,38 @@
 // Added contentType JSON in Kinvey REST requests
 
 function startApp() {
+    const kinveyAppKey = "kid_rJYKcT_Gx";
+    const kinveyAppSecret = "155a0eb1f98a4c02a5e3d4fe081a1049";
+    const kinveyBaseUrl = "https://baas.kinvey.com/";
+    const kinveyUserUrl = `${kinveyBaseUrl}user/${kinveyAppKey}`;
+    const kinveyDataUrl = `${kinveyBaseUrl}appdata/${kinveyAppKey}/books`;
+    const kinveyAppAuthHeaders = {
+        Authorization: "Basic " + btoa(kinveyAppKey + ":" + kinveyAppSecret)
+    };
+
     sessionStorage.clear(); // Clear user auth data
     showHideMenuLinks();
-    showView('viewHome');
+    showHomeView();
+    bindNavMenuLinks();
+    bindFormSubmitButtons();
 
-    // Bind the navigation menu links
-    $("#linkHome").click(showHomeView);
-    $("#linkLogin").click(showLoginView);
-    $("#linkRegister").click(showRegisterView);
-    $("#linkListBooks").click(listBooks);
-    $("#linkCreateBook").click(showCreateBookView);
-    $("#linkLogout").click(logoutUser);
+    function bindNavMenuLinks() {
+        // Bind the navigation menu links
+        $("#linkHome").click(showHomeView);
+        $("#linkLogin").click(showLoginView);
+        $("#linkRegister").click(showRegisterView);
+        $("#linkListBooks").click(listBooks);
+        $("#linkCreateBook").click(showCreateBookView);
+        $("#linkLogout").click(logoutUser);
+    }
 
-    // Bind the form submit buttons
-    $("#buttonLoginUser").click(loginUser);
-    $("#buttonRegisterUser").click(registerUser);
-    $("#buttonCreateBook").click(createBook);
-    $("#buttonEditBook").click(editBook);
+    function bindFormSubmitButtons() {
+        // Bind the form submit buttons
+        $("#buttonLoginUser").click(loginUser);
+        $("#buttonRegisterUser").click(registerUser);
+        $("#buttonCreateBook").click(createBook);
+        $("#buttonEditBook").click(editBook);
+    }
 
     // Bind the info / error boxes: hide on click
     $("#infoBox, #errorBox").click(function () {
@@ -35,19 +50,11 @@ function startApp() {
         }
     });
 
-    const kinveyBaseUrl = "https://baas.kinvey.com/";
-    const kinveyAppKey = "kid_rJYKcT_Gx";
-    const kinveyAppSecret = "155a0eb1f98a4c02a5e3d4fe081a1049";
-    const kinveyAppAuthHeaders = {
-        Authorization: "Basic " + btoa(kinveyAppKey + ":" + kinveyAppSecret),
-        contentType: 'application/json'
-    };
-
     function showHideMenuLinks() {
         $('#menu').find('a').hide(); // hide all links in nav bar
         $("#linkHome").show();
 
-        if (sessionStorage.getItem('authToken')) {  // Logged-in user
+        if (sessionStorage.getItem('authToken')) {  // logged-in user
             $("#linkListBooks").show();
             $("#linkCreateBook").show();
             $("#linkLogout").show();
@@ -82,18 +89,18 @@ function startApp() {
     }
 
     function registerUser() {
-        let formRegisterInput = $('#formRegister');
-        let username = formRegisterInput.find('input[name=username]').val().trim();
-        let password = formRegisterInput.find('input[name=passwd]').val().trim();
+        let formRegister = $('#formRegister');
+        let username = formRegister.find('input[name=username]').val().trim();
+        let password = formRegister.find('input[name=passwd]').val().trim();
 
-        if (username != '' && password != '') {
+        if (username != '' && password != '') { // validation for empty user credentials
             let userData = {
                 username: username,
                 password: password
             };
             $.ajax({
                 method: "POST",
-                url: kinveyBaseUrl + "user/" + kinveyAppKey,
+                url: kinveyUserUrl,
                 headers: kinveyAppAuthHeaders,
                 contentType: 'application/json',
                 data: JSON.stringify(userData),
@@ -101,7 +108,7 @@ function startApp() {
                 error: handleAjaxError
             });
         } else {
-            showInfo('Please enter username and password.');
+            showInfo('Please provide username and password.');
         }
         function registerSuccess(userInfo) {
             saveAuthInSession(userInfo);
@@ -122,18 +129,18 @@ function startApp() {
     }
 
     function loginUser() {
-        let formRegisterInput = $('#formLogin');
-        let username = formRegisterInput.find('input[name=username]').val();
-        let password = formRegisterInput.find('input[name=passwd]').val();
+        let formLogin = $('#formLogin');
+        let username = formLogin.find('input[name=username]').val();
+        let password = formLogin.find('input[name=passwd]').val();
 
-        if (username != '' && password != '') {
+        if (username != '' && password != '') { // validation for empty user credentials
             let userData = {
                 username: username,
                 password: password
             };
             $.ajax({
                 method: "POST",
-                url: kinveyBaseUrl + "user/" + kinveyAppKey + "/login",
+                url: `${kinveyUserUrl}/login`,
                 headers: kinveyAppAuthHeaders,
                 contentType: 'application/json',
                 data: JSON.stringify(userData),
@@ -141,7 +148,7 @@ function startApp() {
                 error: handleAjaxError
             });
         } else {
-            showInfo('Please enter username and password.');
+            showInfo('Please provide username and password.');
         }
         function loginSuccess(userInfo) {
             saveAuthInSession(userInfo);
@@ -165,7 +172,7 @@ function startApp() {
 
         $.ajax({
             method: "GET",
-            url: kinveyBaseUrl + "appdata/" + kinveyAppKey + "/books",
+            url: kinveyDataUrl,
             headers: getKinveyUserAuthHeaders(),
             success: loadBooksSuccess,
             error: handleAjaxError
@@ -176,8 +183,11 @@ function startApp() {
                 $('#books').text('No books in the library.');
             } else {
                 let booksTable = $('<table>').append($('<tr>')
-                    .append('<th>Title</th><th>Author</th>',
-                        '<th>Description</th><th>Actions</th>'));
+                    .append(
+                        $('<th>').text('Title'),
+                        $('<th>').text('Author'),
+                        $('<th>').text('Description'),
+                        $('<th>').text('Actions')));
                 for (let book of books)
                     appendBookRow(book, booksTable);
                 $('#books').append(booksTable);
@@ -185,25 +195,20 @@ function startApp() {
         }
 
         function appendBookRow(book, booksTable) {
-            let links = [];
-            if (book._acl.creator == sessionStorage['userId']) { // NB book owner
-                let deleteLink = $('<a href="#">[Delete]</a>')
-                    .click(function () {
-                        deleteBook(book)
-                    });
-                let editLink = $('<a href="#">[Edit]</a>')
-                    .click(function () {
-                        loadBookForEdit(book)
-                    });
-                links = [deleteLink, ' ', editLink];
+            let actionLinks = [];
+            if (book._acl.creator == sessionStorage['userId']) { // book owner
+                let deleteLink = $('<a>').attr('href', '#').text('[Delete]')
+                    .click(() => deleteBook(book));
+                let editLink = $('<a>').attr('href', '#').text('[Edit]')
+                    .click(() => loadBookForEdit(book));
+                actionLinks = [deleteLink, ' ', editLink];
             }
             booksTable.append($('<tr>')
                 .append(
                     $('<td>').text(book.title),
                     $('<td>').text(book.author),
                     $('<td>').text(book.description),
-                    $('<td>').append(links)
-                ));
+                    $('<td>').append(actionLinks)));
         }
     }
 
@@ -219,7 +224,7 @@ function startApp() {
         let author = formCreateBook.find('input[name=author]').val().trim();
         let description = formCreateBook.find('textarea[name=descr]').val().trim();
 
-        if (author != '' && title != '') {
+        if (author && title && description) { // validation for empty book props
             let bookData = {
                 title: title,
                 author: author,
@@ -227,7 +232,7 @@ function startApp() {
             };
             $.ajax({
                 method: "POST",
-                url: kinveyBaseUrl + "appdata/" + kinveyAppKey + "/books",
+                url: kinveyDataUrl,
                 headers: getKinveyUserAuthHeaders(),
                 contentType: 'application/json',
                 data: JSON.stringify(bookData),
@@ -235,7 +240,7 @@ function startApp() {
                 error: handleAjaxError
             });
         } else {
-            showInfo('Please enter author and title.');
+            showInfo('Please provide all book details.');
         }
         function createBookSuccess(response) {
             listBooks();
@@ -246,12 +251,13 @@ function startApp() {
     function loadBookForEdit(book) {
         $.ajax({
             method: "GET",
-            url: kinveyBookUrl = kinveyBaseUrl + "appdata/" + kinveyAppKey + "/books/" + book._id,
+            url: `${kinveyDataUrl}/${book._id}`,
             headers: getKinveyUserAuthHeaders(),
             success: loadBookForEditSuccess,
             error: handleAjaxError
         });
         function loadBookForEditSuccess(book) {
+            // console.dir(book);
             let formEditBook = $('#formEditBook');
             formEditBook.find('input[name=id]').val(book._id);
             formEditBook.find('input[name=title]').val(book.title);
@@ -268,7 +274,7 @@ function startApp() {
         let description = formEditBook.find('textarea[name=descr]').val().trim();
         let id = formEditBook.find('input[name=id]').val();
 
-        if (author != '' && title != '') {
+        if (author != '' && title != '' && description != '') { // validation for empty book props
             let bookData = {
                 title: title,
                 author: author,
@@ -276,7 +282,7 @@ function startApp() {
             };
             $.ajax({
                 method: "PUT",
-                url: kinveyBaseUrl + "appdata/" + kinveyAppKey + "/books/" + id,
+                url: `${kinveyDataUrl}/${id}`,
                 headers: getKinveyUserAuthHeaders(),
                 contentType: 'application/json',
                 data: JSON.stringify(bookData),
@@ -284,7 +290,7 @@ function startApp() {
                 error: handleAjaxError
             });
         } else {
-            showInfo('Please enter author and title.');
+            showInfo('Please provide all book details.');
         }
         function editBookSuccess(response) {
             listBooks();
@@ -295,7 +301,7 @@ function startApp() {
     function deleteBook(book) {
         $.ajax({
             method: "DELETE",
-            url: kinveyBaseUrl + "appdata/" + kinveyAppKey + "/books/" + book._id,
+            url: `${kinveyDataUrl}/${book._id}`,
             headers: getKinveyUserAuthHeaders(),
             success: deleteBookSuccess,
             error: handleAjaxError
