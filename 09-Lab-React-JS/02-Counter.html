@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Counter</title>
+    <script src="https://unpkg.com/react/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone"></script>
+    <style>
+        .counter {
+            background: #EEE;
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">A React component will be rendered here</div>
+</body>
+<script type="text/babel">
+    let Counter = React.createClass({
+        getInitialState: function () {
+            return {
+                count: Number(this.props.start),
+                styles: {color: 'black'}
+            }
+        },
+        increase: function () {
+            this.setState({
+                count: this.state.count + 1,
+                styles: {color: 'blue'}
+            })
+        },
+        decrease: function () {
+            this.setState({
+                count: this.state.count - 1,
+                styles: {color: 'red'}
+            })
+        },
+        changeColor: function () {
+            this.setState({
+                styles: {color: 'black'}
+            })
+        },
+        render: function () {
+            return (
+                    <div className="counter">Count:&nbsp;
+                        <b style={this.state.styles}>{this.state.count} </b>
+                        <button type="button" onClick={this.decrease}>-</button>
+                        <button type="button" onClick={this.increase}>+</button>
+                        <button type="button" onClick={this.changeColor}>Color</button>
+                    </div>
+            )
+        }
+    });
+
+    ReactDOM.render(
+            <div>
+                <Counter start="-100"/>
+                <Counter start="0"/>
+                <Counter start="100"/>
+            </div>,
+        document.getElementById('app'));
+</script>
+</html>

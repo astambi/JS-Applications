@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Name & Age</title>
+    <script src="https://unpkg.com/react/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone"></script>
+    <style>
+        table th, table td {
+            background-color: #EEE;
+            margin: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">A React component will be rendered here</div>
+</body>
+<script type="text/babel">
+    let Table = React.createClass({
+        delete: function () {
+            if (this.props.ondelete)
+                this.props.ondelete();
+        },
+        render: function () {
+            let component = this;
+            let titles = this.props.columns.map(function (col, i) {
+                return <th key={i}>{col}</th>
+            });
+            let rows = this.props.rows.map(function (row, rowIndex) {
+                return (
+                        <tr key={rowIndex}>{
+                            row.map(function (col, colIndex) {
+                                return <td key={colIndex}>{col}</td>
+                            })}
+                            <td>
+                                <button onClick={component.delete}>Delete</button>
+                            </td>
+                        </tr>
+                )
+            });
+            return (
+                    <table>
+                        <thead>
+                        <tr>
+                            {titles}
+                            <th key={this.props.columns.length}>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>{rows}</tbody>
+                    </table>
+            );
+        }
+    });
+    let columns = ["Name", "Age"];
+    let rows = [
+        ['Pesho', 17],
+        ['Maria', 18]
+    ];
+
+    ReactDOM.render(
+            <Table columns={columns} rows={rows}
+                   ondelete={delFunc}/>,
+        document.getElementById('app'));
+
+    function delFunc() {
+        alert('Delete clicked');
+    }
+</script>
+</html>

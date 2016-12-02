@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Persons</title>
+    <script src="https://unpkg.com/react/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone"></script>
+</head>
+<body>
+<div id="app">A React component will be rendered here</div>
+</body>
+<script type="text/babel">
+    class Person extends React.Component {
+        render() {
+            return (
+                    <div>
+                        <h1>{this.props.name}</h1>
+                        <p>Tel. {this.props.phone}</p>
+                    </div>
+            )
+        }
+    }
+    let PersonClass = React.createClass({
+        render: function () {
+            return (
+                    <div>
+                        <h1>{this.props.name}</h1>
+                        <p>Tel. {this.props.phone}</p>
+                    </div>
+            )
+        }
+    });
+    let app =
+            <div>
+                <Person name="Nakov" phone="+359 2 981 981"/>
+                <PersonClass name="Pesho" phone="+359 2 123 123"/>
+            </div>;
+
+    ReactDOM.render(
+        app,
+        document.getElementById('app'));
+</script>
+</html>

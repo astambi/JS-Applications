@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Towns</title>
+    <script src="https://unpkg.com/react/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone"></script>
+</head>
+<body>
+<div id="app">A React component will be rendered here</div>
+</body>
+<script type="text/babel">
+    let List = React.createClass({
+        render: function () {
+            return <ul>
+                {
+                    this.props.items.map(function (item, index) {
+                        return <li key={index}>{item}</li>;
+                    })
+                }
+            </ul>;
+        }
+    });
+    let towns = ["Sofia", "Varna", "Plovdiv"];
+
+    ReactDOM.render(
+            <List items={towns}/>,
+        document.getElementById('app'));
+</script>
+</html>
