@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List Town</title>
+    <script src="https://unpkg.com/react/dist/react.js"></script>
+    <script src="https://unpkg.com/react-dom/dist/react-dom.js"></script>
+    <script src="https://unpkg.com/babel-standalone"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body onload="listTowns('root')">
+<div id="root"></div>
+</body>
+<script type="text/babel">
+    function listTowns(selector) {
+        let Form = React.createClass({
+            handleFormSubmit: function (event) {
+                let townsInput = event.target.parentNode[0];
+                this.props.onsubmit(townsInput.value);
+//                console.log(townsInput);
+//                console.log(townsInput.value);
+                event.preventDefault();
+            },
+            render: function () {
+                return (
+                        <form>
+                            <input type="text" defaultValue="Sofia, Belgrad, Athens"/>
+                            <input type="submit" onClick={this.handleFormSubmit}/>
+                        </form>
+                );
+            }
+        });
+
+        let App = React.createClass({
+            getInitialState: function () {
+                let towns = [];
+                return {towns};
+            },
+            readTowns: function (townsInputData) {
+                let towns = townsInputData
+                    .split(', ')
+                    .map(x => x.trim())
+                    .filter(x => x != '');
+                this.setState({towns: towns});
+            },
+            render: function () {
+                let towns = this.state.towns.map(function (town, i) {
+                    return <li key={i}>{town}</li>
+                });
+                if (towns.length > 0)
+                    return (
+                            <div>
+                                <Form onsubmit={this.readTowns}/>
+                                <ul>{towns}</ul>
+                            </div>
+                    );
+                else
+                    return (
+                            <div>
+                                <Form onsubmit={this.readTowns}/>
+                            </div>
+                    )
+            }
+        });
+
+        ReactDOM.render(
+                <App/>,
+            document.getElementById(selector)
+        );
+    }
+</script>
+</html>
