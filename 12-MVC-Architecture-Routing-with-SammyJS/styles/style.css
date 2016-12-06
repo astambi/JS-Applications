@@ -1,0 +1,8 @@
+div {
+    text-align: center;
+}
+
+div.book-title {
+    background-color: #DDD;
+    font-weight: 600;
+}
