@@ -5,7 +5,7 @@ export default class Footer extends Component {
     render() {
         return (
             <div className="footer">
-                (c) React Book Library App
+                (c) Book Library SPA with ReactJS
             </div>
         );
     }
