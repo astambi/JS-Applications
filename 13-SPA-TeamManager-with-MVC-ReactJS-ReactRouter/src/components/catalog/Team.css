@@ -1,0 +1,13 @@
+.team-box {
+    float: left;
+    width: 20em;
+    border: 3px solid antiquewhite;
+    margin: 1em;
+}
+
+.spanner {
+    display: block;
+    /*text-align: center;*/
+    background-color: antiquewhite;
+    font-weight: 600;
+}
